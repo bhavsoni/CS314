@@ -1,0 +1,144 @@
+Homework 6
+==========
+
+Due Monday, December 10
+Submit to Sakai by 3:00 AM December 11
+
+
+We discussed in class a predicate that finds the transitive closure of a
+relation:
+
+    transit(Rel, S, T) :- call(Rel, S, X), (X = T; transit(Rel, X, T)).
+
+One may consider this a graph algorithm, where call(Rel, S, T) is true if an
+arc exists from S to T, and transit(Rel, S, T) is true if a path exists from
+S to T.
+
+Unfortunately, this definition is only sound if Rel is acyclic. That is,
+transit will try to find every path from S to T, and the number of paths is
+potentially infinite.
+
+For this assignment, write path/5, a relation that holds between a predicate,
+two atoms, a path from the first atom to the second following that predicate,
+and an integer that is the length of the path.
+
+	path(:Rel, ?Source, ?Target, ?Path, ?Length)
+
+Path must have Source as its first element and Target as its last element.
+The total number of elements in Path must be Length. Each successive pair of
+elements in Path must have the Rel relation. Thus, Path=[a,b,c] and Rel=foo,
+implies foo(a,b), foo(b,c).
+
+Importantly, no element may occur in Path more than once. That is, path/5 must
+avoid getting stuck in cycles.
+
+There is no restriction on the type of elements that may occur in Path, beyond
+those implied by Rel.
+
+	is_a(parallelogram, quadrilateral).
+	is_a(trapezoid, quadrilateral).
+	is_a(rhombus, parallelogram).
+	is_a(rectangle, parallelogram).
+	is_a(square, rhombus).
+	is_a(square, rectangle).
+
+	?- path(is_a, square, quadrilateral, 
+		[square, rhombus, parallelogram, quadrilateral], 4).
+	true.
+	?- path(is_a, square, parallelogram, [square, trapezoid, parallelogram], 3).
+	false.
+	
+
+	friend(alice, bob).
+	friend(bob, carol).
+	friend(carol, daniel).
+	friend(carol, eve).
+	
+	friends(A,B) :- friend(A,B); friend(B,A).
+	
+	?- path(friends, eve, bob, [eve, carol, bob], 3).
+	true.
+
+
+Your definition of path/5 should work in as many modes as possible. You will
+receive partial credit for those modes which you are able to implement.
+You will receive credit for implementing these modes:
+
+A) path(+Rel, +S, +T, ++P, +N)
+	confirm that P is a path from S to T with length N (20 points)
+
+B) path(+Rel, ?S, ?T, +P, ?N)
+	confirm that P is a path, find source, target, and length (20 points)
+
+C) path(+Rel, +S, +T, ?P, +N)
+	find length-N paths from S to T (20 points)
+
+D) path(+Rel, +S, +T, ?P, ?N)
+	find paths from S to T (20 points)
+
+E) path(+Rel, ?S, ?T, ?P, +N)
+	find all length-N paths (10 points)
+
+F) path(+Rel, ?S, ?T, ?P, ?N)
+	find all paths (10 points)
+
+Indicate in your submission which modes you have attempted. We will not record
+scores for those modes you have not attempted.
+
+To receive full credit, your implementation should not exhibit universal or
+existential non-termination for any mode you claim to support. If you have
+implemented mode F, this query should terminate:
+
+	?- path(friends, _, _, _, _), false.
+	false.
+
+Where practical, your implementation should avoid leaving unnecessary choice
+points.
+
+You will most likely want to use one or more helper predicates.
+
+
+Submission
+----------
+
+Your submission must be a single Prolog source file named "hw6.pl".
+
+Your submissions should be useable with SWI Prolog. If you plan to use
+GNU Prolog for this assignment, you should speak with Prof. Menendez first.
+
+
+Testing
+-------
+
+You may use the unit tests provided in "hw6.plt" to test your program. Note
+that these are necessary but not sufficient for correctness. We will be testing
+with additional test cases not provided here.
+
+The test cases use the Prolog unit-test package plunit. This should be included
+with SWI Prolog installations by default, but is not available on the iLab
+machines. To check whether plunit is available, use this command from the
+SWI Prolog prompt:
+
+	use_module(library(plunit)).
+
+If this fails, then copy the plunit.pl file to your directory.
+
+To use these tests, copy "hw6.plt" to the same directory as your "hw6.pl" and
+execute this command at the Unix prompt:
+
+	swipl -s hw6.pl -t "load_test_files([]), run_tests."
+
+If you are using the provided copy of plunit, use this command:
+
+	swipl -s hw6.pl -t "use_module(plunit), load_test_files([]), run_tests."
+
+Alternately, from the SWI Prolog prompt, you may do
+
+	?- load_test_files([]).
+	true.
+	?- run_tests.
+	...
+
+The test file contains six tests. To avoid infinite loops, all but the first
+are disabled. As you complete modes, uncomment the lines implemented(mode_X)
+to enable additional tests.
